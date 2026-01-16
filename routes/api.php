@@ -12,5 +12,5 @@ Route::middleware('auth:sanctum')->group(function () {
         return $request->user();
     })->middleware('auth:sanctum');
 });
-
+ 
 require __DIR__.'/auth.php';
