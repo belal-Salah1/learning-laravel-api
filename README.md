@@ -7,53 +7,96 @@
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
 </p>
 
-## About Laravel
+# laravel-image-prompt-suite
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+Full-featured Laravel image→prompt service: upload images, validate and sanitize files, then generate detailed image-generation prompts using OpenAI. Includes authentication, upload storage, validation, example requests, and recommended production practices.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Features
+- Posts CRUD: create, read, update, and delete posts with validation and ownership checks
+- Sanctum-based API authentication and optional session support
+- Secure upload validation (`file`, `image`, `mimes`, `dimensions`, size limits)
+- OpenAI integration: analyze images and produce detailed prompts
+- Safe filename sanitization and public storage for uploads
+- Recommended: queueable background jobs for rate-limit resilience and retries
+- Suggested caching/dedupe to avoid redundant processing
+- Example curl/Postman requests and setup instructions
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Quick Start
 
-## Learning Laravel
+1. Copy `.env.example` to `.env` and set your environment variables (database, `services.openai.key`, etc.).
+2. Install dependencies:
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+```bash
+composer install
+cp .env.example .env
+php artisan key:generate
+```
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+3. Configure storage and run migrations:
 
-## Laravel Sponsors
+```bash
+php artisan storage:link
+php artisan migrate
+```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+4. (Optional) Run queue worker for background jobs:
 
-### Premium Partners
+```bash
+php artisan queue:work
+```
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+5. Start the server:
 
-## Contributing
+```bash
+php artisan serve
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## Environment variables
 
-## Code of Conduct
+- `APP_URL` — application base URL
+- `DB_*` — database connection
+- `FILESYSTEM_DRIVER` — recommended `public` for uploads
+- `SERVICES_OPENAI_KEY` or `services.openai.key` — your OpenAI API key
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Provide a `.env.example` with non-sensitive defaults and keep your real `.env` out of the repository.
 
-## Security Vulnerabilities
+## API Endpoints (examples)
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+- POST /api/register — create user (Sanctum)
+- POST /api/login — obtain token
+- POST /api/upload-image — multipart form upload: `image` field (authenticated)
+- POST /api/logout — revoke token
+
+Posts endpoints (example):
+
+- GET /api/posts — list posts (public or authenticated based on config)
+- POST /api/posts — create a post (authenticated)
+- GET /api/posts/{id} — view a single post
+- PUT/PATCH /api/posts/{id} — update a post (owner only)
+- DELETE /api/posts/{id} — delete a post (owner only)
+
+Example curl (upload image):
+
+```bash
+curl -X POST "http://127.0.0.1:8000/api/upload-image" \
+	-H "Authorization: Bearer <TOKEN>" \
+	-F "image=@/path/to/photo.jpg"
+```
+
+## Recommended Production Practices
+
+- Run image processing as queued jobs to handle OpenAI rate limits and retries.
+- Respect OpenAI rate limits (backoff / Retry-After header).
+- Use object storage (S3) for uploads in production.
+- Add monitoring: retry/failed job alerts and request metrics.
+- Keep secrets out of repo and use CI secrets for deployments.
+
+## Tests & CI
+
+Add PHPUnit/Pest tests for request validation, controller responses, and queued job behavior. Use GitHub Actions for CI to run tests and static analysis.
 
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+MIT
+
+
