@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Models\ImageGeneration;
 use App\Models\Post;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -50,5 +51,8 @@ class User extends Authenticatable
     }
     public function posts():HasMany{
         return $this->hasMany(Post::class,'author_id');
+    }
+    public function imageGenerations():HasMany{
+        return $this->hasMany(ImageGeneration::class);
     }
 }
