@@ -7,15 +7,18 @@ use App\Http\Requests\StorePostRequest;
 use App\Http\Resources\PostResource;
 use App\Models\Post;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class PostController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index()                                                                       
     {
-        return PostResource::collection(Post::with('author')->paginate(2));
+        $user = request()->user();
+        $posts= $user->posts()->paginate();
+        return PostResource::collection($posts);
 
     }
 
@@ -24,7 +27,7 @@ class PostController extends Controller
      */
     public function store(StorePostRequest $request) {
         $data = $request->validated();
-        $data['author_id'] = 1; // Simulate authenticated user ID
+        $data['author_id'] = request()->user()->id; // Simulate authenticated user ID
         $post = Post::create($data);
         return response()->json(new PostResource($post),201);
     }
@@ -36,6 +39,10 @@ class PostController extends Controller
     {
         // $post = Post::findOrFail($id);  
         // return response()->json($post)->header('test','test headerValue');
+        $user = request()->user();
+            // abort_if($post->author_id !== $user->id,403,'Access forbidden');
+            abort_if($post->author_id !== Auth::id(),403,'Access forbidden');
+         
         return response()->json(new PostResource($post));
     }
 
@@ -58,9 +65,10 @@ class PostController extends Controller
      */
     public function destroy(Post $post)
     {   
+        abort_if($post->author_id !== Auth::id(),403,'Access forbidden');
         $post->delete();
         return response()-> noContent();    
     }
 
-  
+
 }
