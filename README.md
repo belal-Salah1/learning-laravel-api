@@ -17,7 +17,8 @@ Full-featured Laravel image→prompt service: upload images, validate and saniti
 - Secure upload validation (`file`, `image`, `mimes`, `dimensions`, size limits)
 - OpenAI integration: analyze images and produce detailed prompts
 - Safe filename sanitization and public storage for uploads
-- Recommended: queueable background jobs for rate-limit resilience and retries
+- Rate limiting handling
+- api versioning
 - Suggested caching/dedupe to avoid redundant processing
 - Example curl/Postman requests and setup instructions
 
