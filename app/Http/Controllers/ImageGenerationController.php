@@ -13,7 +13,7 @@ class ImageGenerationController extends Controller
 
     public function index() {
         $user = request()->user();
-        $imageGeneration = $user->imageGenerations()->latest()->paginate(10);
+        $imageGeneration = $user->imageGenerations()->latest()->paginate();
          return imageGenerationResource::collection($imageGeneration);
     }
 
